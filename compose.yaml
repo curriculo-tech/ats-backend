@@ -1,18 +1,18 @@
 services:
-  db:
-    image: postgres:15.1-alpine
-    container_name: database
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${NUXT_DB_USER:-postgres}
-      POSTGRES_PORT: 5432
-      POSTGRES_PASSWORD: ${NUXT_DB_PASSWORD:-postgrespw}
-      POSTGRES_DB: ${NUXT_DB_DATABASE:-vidur}
-    ports:
-      - '5432:5432'
-    volumes:
-      - vidur_data:/var/lib/postgresql/data
+  # db:
+  #   image: postgres:15.1-alpine
+  #   container_name: database
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     POSTGRES_USER: ${NUXT_DB_USER:-postgres}
+  #     POSTGRES_PORT: 5432
+  #     POSTGRES_PASSWORD: ${NUXT_DB_PASSWORD:-postgrespw}
+  #     POSTGRES_DB: ${NUXT_DB_DATABASE:-vidur}
+  #   ports:
+  #     - '5432:5432'
+  #   volumes:
+  #     - vidur_data:/var/lib/postgresql/data
 
   app:
     build:
@@ -23,7 +23,7 @@ services:
       - .env
     environment:
       PORT: ${PORT:-3001}
-      NUXT_DB_HOST: db
+      NUXT_DB_HOST: ${NUXT_DB_HOST:-db}
       NUXT_DB_PORT: 5432
       NUXT_DB_USER: ${NUXT_DB_USER:-postgres}
       NUXT_DB_PASSWORD: ${NUXT_DB_PASSWORD:-postgrespw}
