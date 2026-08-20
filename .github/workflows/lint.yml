@@ -32,3 +32,16 @@ jobs:
 
       - name: Check Types
         run: yarn run type:check
+
+      - name: Notify Discord on failure
+        if: failure()
+        continue-on-error: true
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "${DISCORD_WEBHOOK_URL:-}" ]; then echo "DISCORD_WEBHOOK_URL not set — skipping"; exit 0; fi
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          payload="$(jq -n --arg t "❌ ${GITHUB_WORKFLOW} failed — ${GITHUB_REPOSITORY}" \
+                --arg u "$RUN_URL" --arg s "$(printf %.8s "$GITHUB_SHA")" --arg a "$GITHUB_ACTOR" \
+                '{embeds:[{title:$t,url:$u,color:15158332,fields:[{name:"Commit",value:$s,inline:true},{name:"Actor",value:$a,inline:true}]}]}')"
+          printf '%s' "$payload" | curl -sS -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" || echo "Discord notify failed (non-fatal)"
